@@ -19,7 +19,7 @@ static NSButton* OakCreateImageButton (NSImage* image)
 	if(self = [super initWithFrame:aRect])
 	{
 		self.wantsLayer   = YES;
-		self.material     = NSVisualEffectMaterialTitlebar;
+		self.material     = NSVisualEffectMaterialWindowBackground;
 		self.blendingMode = NSVisualEffectBlendingModeWithinWindow;
 		self.state        = NSVisualEffectStateFollowsWindowActiveState;
 
