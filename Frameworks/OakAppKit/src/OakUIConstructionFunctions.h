@@ -13,6 +13,10 @@ typedef NS_ENUM(NSUInteger, OakBackgroundFillViewStyle) {
 @property (nonatomic) BOOL active;
 @end
 
+@interface OakBorderFillView : NSView
+@property (nonatomic) NSColor* borderColor;
+@end
+
 NSFont* OakStatusBarFont ();
 NSFont* OakControlFont ();
 
@@ -26,5 +30,6 @@ OakRolloverButton* OakCreateCloseButton (NSString* accessibilityLabel = @"Close 
 NSView* OakCreateNSBoxSeparator ();
 
 OakBackgroundFillView* OakCreateVerticalLine (OakBackgroundFillViewStyle style);
+OakBorderFillView* OakCreateBorderLine ();
 void OakSetupKeyViewLoop (NSArray<NSView*>* views);
 void OakAddAutoLayoutViewsToSuperview (NSArray<NSView*>* views, NSView* superview);

@@ -295,6 +295,44 @@ void OakSetupKeyViewLoop (NSArray<NSView*>* superviews)
 		views[i].nextKeyView = views.count == 1 ? nil : views[(i+1) % views.count];
 }
 
+// ========================
+// = OakBorderFillView =
+// ========================
+
+@implementation OakBorderFillView
+
+- (instancetype)initWithFrame:(NSRect)aRect
+{
+	if(self = [super initWithFrame:aRect])
+	{
+		[self setWantsLayer:YES];
+	}
+	return self;
+}
+
+- (void)setBorderColor:(NSColor*)aColor
+{
+	if(_borderColor == aColor || [_borderColor isEqual:aColor])
+		return;
+	_borderColor = aColor;
+	self.layer.backgroundColor = _borderColor.CGColor;
+}
+
+- (NSSize)intrinsicContentSize
+{
+	return NSMakeSize(NSViewNoIntrinsicMetric, NSViewNoIntrinsicMetric);
+}
+
+@end
+
+OakBorderFillView* OakCreateBorderLine ()
+{
+	OakBorderFillView* view = [[OakBorderFillView alloc] initWithFrame:NSZeroRect];
+	[view addConstraint:[NSLayoutConstraint constraintWithItem:view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:1]];
+	view.translatesAutoresizingMaskIntoConstraints = NO;
+	return view;
+}
+
 void OakAddAutoLayoutViewsToSuperview (NSArray<NSView*>* views, NSView* superview)
 {
 	for(NSView* view in views)
