@@ -13,10 +13,6 @@ typedef NS_ENUM(NSUInteger, OakBackgroundFillViewStyle) {
 @property (nonatomic) BOOL active;
 @end
 
-@interface OakBorderFillView : NSView
-@property (nonatomic) NSColor* borderColor;
-@end
-
 NSFont* OakStatusBarFont ();
 NSFont* OakControlFont ();
 
