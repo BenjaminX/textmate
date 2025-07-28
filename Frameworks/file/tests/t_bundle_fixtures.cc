@@ -68,7 +68,7 @@ void setup_fixtures ()
 		"}";
 
 	static std::string ExportSHA1Command =
-		"{	command = \"#!/bin/sh\n/usr/bin/openssl dgst -sha1 -binary\n\";\n"
+		"{	command = \"#!/bin/bash\n/usr/bin/openssl dgst -sha1 -binary\n\";\n"
 		"	semanticClass = 'callback.document.binary-export';\n"
 		"	input  = 'document';\n"
 		"	name   = 'Hash Document';\n"
