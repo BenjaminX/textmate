@@ -149,7 +149,7 @@ enum action_t { kActionNop, kActionTab, kActionReturn, kActionCancel, kActionMov
 
 - (id)tableView:(NSTableView*)aTableView objectValueForTableColumn:(NSTableColumn*)aTableColumn row:(NSInteger)rowIndex
 {
-	return [_choices objectAtIndex:rowIndex];
+    return [_choices objectAtIndex:rowIndex];
 }
 
 - (NSView*)tableView:(NSTableView*)aTableView viewForTableColumn:(NSTableColumn*)aTableColumn row:(NSInteger)row

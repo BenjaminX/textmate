@@ -351,6 +351,7 @@ static NSString* const kFoldingsColumnIdentifier  = @"foldings";
 			}
 		}
 
+		// Bookmark 2: Update gutter view styles - This is where the gutter view styles are updated.
 		[self updateGutterViewFont:self]; // trigger update of gutter view’s line number font
 		auto const& styles = theme->gutter_styles();
 
@@ -366,8 +367,7 @@ static NSString* const kFoldingsColumnIdentifier  = @"foldings";
 		gutterView.selectionIconPressedColor = [NSColor colorWithCGColor:styles.selectionIconsPressed];
 		gutterView.selectionBorderColor      = [NSColor colorWithCGColor:styles.selectionBorder];
 		gutterScrollView.backgroundColor     = gutterView.backgroundColor;
-		gutterDividerView.activeBackgroundColor = [NSColor colorWithCGColor:styles.divider];
-
+		// gutterDividerView.activeBackgroundColor = [NSColor colorWithCGColor:styles.divider];
 		[gutterView setNeedsDisplay:YES];
 	}
 }
