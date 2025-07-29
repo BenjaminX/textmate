@@ -27,6 +27,7 @@
 #import <file/path_info.h>
 #import <io/entries.h>
 #import <scm/scm.h>
+#import <io/path.h>
 #import <text/parse.h>
 #import <text/tokenize.h>
 #import <text/utf8.h>
@@ -1639,10 +1640,43 @@ static NSArray* const kObservedKeyPaths = @[ @"arrayController.arrangedObjects.p
 
 - (IBAction)toggleSticky:(id)sender
 {
+        if(NSIndexSet* indexSet = [self tryObtainIndexSetFrom:sender])
+        {
+                for(OakDocument* doc in [_documents objectsAtIndexes:indexSet])
+                        [self setDocument:doc sticky:![self isDocumentSticky:doc]];
+        }
+}
+
+// Copy absolute paths of the documents represented by the given tabs
+- (IBAction)copyAbsolutePath:(id)sender
+{
+        if(NSIndexSet* indexSet = [self tryObtainIndexSetFrom:sender])
+        {
+                NSMutableArray* paths = [NSMutableArray array];
+                for(OakDocument* doc in [_documents objectsAtIndexes:indexSet])
+                        if(doc.path) [paths addObject:doc.path];
+                [NSPasteboard.generalPasteboard clearContents];
+                [NSPasteboard.generalPasteboard writeObjects:paths];
+        }
+}
+
+// Copy document paths relative to the project directory
+- (IBAction)copyRelativePath:(id)sender
+{
 	if(NSIndexSet* indexSet = [self tryObtainIndexSetFrom:sender])
 	{
+		NSMutableArray* rel = [NSMutableArray array];
+		NSString* base = self.projectPath ?: @"";
 		for(OakDocument* doc in [_documents objectsAtIndexes:indexSet])
-			[self setDocument:doc sticky:![self isDocumentSticky:doc]];
+		{
+			if(doc.path) {
+				std::string p = path::relative_to(to_s(doc.path), to_s(base));
+				[rel addObject:[NSString stringWithCxxString:p]];
+			}
+		}
+		
+		[NSPasteboard.generalPasteboard clearContents];
+		[NSPasteboard.generalPasteboard writeObjects:rel];
 	}
 }
 
@@ -1676,15 +1710,27 @@ static NSArray* const kObservedKeyPaths = @[ @"arrayController.arrangedObjects.p
 
 	SEL closeSingleTabSelector = tabIndex == _selectedTabIndex ? @selector(performCloseTab:) : @selector(takeTabsToCloseFrom:);
 	MBMenu const items = {
-		{ @"New Tab",                  @selector(takeNewTabIndexFrom:),    .representedObject = newTabAtTab   },
+		//{ @"New Tab",                  @selector(takeNewTabIndexFrom:),    .representedObject = newTabAtTab   },
+		//{ @"Move Tab to New Window",   @selector(takeTabsToTearOffFrom:),  .representedObject = total > 1 ? clickedTab : [NSIndexSet indexSet] },
+		//{ /* -------- */ },
+		//{ @"Close Tab",                closeSingleTabSelector,                                                                           .representedObject = clickedTab    },
+		//{ @"Close Other Tabs",         @selector(takeTabsToCloseFrom:),                                                                  .representedObject = otherTabs     },
+		//{ @"Close Tabs to the Right",  @selector(takeTabsToCloseFrom:),                                                                  .representedObject = rightSideTabs },
+		//{ @"Close Tabs to the Left",   @selector(takeTabsToCloseFrom:),    .modifierFlags = NSEventModifierFlagOption, .alternate = YES, .representedObject = leftSideTabs  },
+		//{ /* -------- */ },
+		//{ @"Sticky",                   @selector(toggleSticky:),           .representedObject = clickedTab    },
+		
+		{ @"New Tab",                  @selector(takeNewTabIndexFrom:),   .representedObject = newTabAtTab   },
 		{ @"Move Tab to New Window",   @selector(takeTabsToTearOffFrom:),  .representedObject = total > 1 ? clickedTab : [NSIndexSet indexSet] },
 		{ /* -------- */ },
-		{ @"Close Tab",                closeSingleTabSelector,                                                                           .representedObject = clickedTab    },
-		{ @"Close Other Tabs",         @selector(takeTabsToCloseFrom:),                                                                  .representedObject = otherTabs     },
-		{ @"Close Tabs to the Right",  @selector(takeTabsToCloseFrom:),                                                                  .representedObject = rightSideTabs },
-		{ @"Close Tabs to the Left",   @selector(takeTabsToCloseFrom:),    .modifierFlags = NSEventModifierFlagOption, .alternate = YES, .representedObject = leftSideTabs  },
+		{ @"Copy Absolute Path",       @selector(copyAbsolutePath:),      .representedObject = clickedTab },
+		{ @"Copy Relative Path",       @selector(copyRelativePath:),      .representedObject = clickedTab },
 		{ /* -------- */ },
-		{ @"Sticky",                   @selector(toggleSticky:),           .representedObject = clickedTab    },
+		{ @"Close Tab",                closeSingleTabSelector, .representedObject = clickedTab },
+		{ @"Close Other Tabs",         @selector(takeTabsToCloseFrom:), .representedObject = otherTabs },
+		{ @"Close Tabs to the Right",  @selector(takeTabsToCloseFrom:), .representedObject = rightSideTabs },
+		{ @"Close Tabs to the Left",   @selector(takeTabsToCloseFrom:),   .modifierFlags = NSEventModifierFlagOption, .alternate = YES, .representedObject = leftSideTabs  }
+
 	};
 
 	NSMenu* menu = MBCreateMenu(items);
@@ -2299,7 +2345,7 @@ static NSArray* const kObservedKeyPaths = @[ @"arrayController.arrangedObjects.p
 	else if([menuItem action] == @selector(performBundleItemWithUUIDStringFrom:))
 		active = [_textView validateMenuItem:menuItem];
 
-	SEL tabBarActions[] = { @selector(performCloseTab:), @selector(takeNewTabIndexFrom::), @selector(takeTabsToCloseFrom:), @selector(takeTabsToTearOffFrom:), @selector(toggleSticky:) };
+   SEL tabBarActions[] = { @selector(performCloseTab:), @selector(takeNewTabIndexFrom::), @selector(takeTabsToCloseFrom:), @selector(takeTabsToTearOffFrom:), @selector(toggleSticky:), @selector(copyAbsolutePath:), @selector(copyRelativePath:) };
 	if(oak::contains(std::begin(tabBarActions), std::end(tabBarActions), [menuItem action]))
 	{
 		if(NSIndexSet* indexSet = [self tryObtainIndexSetFrom:menuItem])

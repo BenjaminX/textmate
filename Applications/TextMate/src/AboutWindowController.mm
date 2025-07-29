@@ -61,7 +61,7 @@ static NSData* Digest (NSString* someString)
 	NSWindow* win = [[NSPanel alloc] initWithContentRect:rect styleMask:(NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|NSWindowStyleMaskResizable|NSWindowStyleMaskMiniaturizable|NSWindowStyleMaskFullSizeContentView) backing:NSBackingStoreBuffered defer:NO];
 	if((self = [super initWithWindow:win]))
 	{
-		_segmentLabels    = @[ @"About", @"Changes", @"Bundles", @"Registration", @"Legal", @"Contributions" ];
+		_segmentLabels    = @[ @"About", @"Contributions" ];
 		_segmentedControl = [NSSegmentedControl segmentedControlWithLabels:_segmentLabels trackingMode:NSSegmentSwitchTrackingSelectOne target:self action:@selector(takeSelectedSegmentFrom:)];
 
 		self.toolbar = [[NSToolbar alloc] initWithIdentifier:@"About TextMate"];
@@ -158,10 +158,10 @@ static NSData* Digest (NSString* someString)
 
 	NSDictionary* pages = @{
 		@"About":         @"About/About",
-		@"Changes":       @"About/Changes",
-		@"Bundles":       @"About/Bundles",
-		@"Registration":  @"About/Registration",
-		@"Legal":         @"About/Legal",
+		//@"Changes":       @"About/Changes",
+		//@"Bundles":       @"About/Bundles",
+		//@"Registration":  @"About/Registration",
+		//@"Legal":         @"About/Legal",
 		@"Contributions": @"About/Contributions"
 	};
 

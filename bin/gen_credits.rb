@@ -96,9 +96,15 @@ class GitHubLookup
     end
 
     user = YAML.load(response.body)
-    return nil if user.nil?
-    # save result to k/v store
-    return @db[emailhash] = user['user']['login']
+    # New: check for nil, missing keys, or unexpected structure
+    login = user && user['user'] && user['user']['login']
+
+    unless login
+      warn "WARN: Could not find login for email #{email.inspect} (API result: #{user.inspect})"
+      return @db[emailhash] = nil
+    end
+
+    return @db[emailhash] = login
   end
 
 end
