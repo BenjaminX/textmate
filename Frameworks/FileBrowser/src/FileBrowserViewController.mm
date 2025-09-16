@@ -22,6 +22,7 @@
 #import <Preferences/Keys.h>
 #import <bundles/bundles.h>
 #import <ns/ns.h>
+#import <io/path.h>
 #import <regexp/glob.h>
 #import <settings/settings.h>
 #import <text/ctype.h>
@@ -488,55 +489,88 @@ static NSMutableIndexSet* MutableLongestCommonSubsequence (NSArray* lhs, NSArray
 		}
 	}
 
-	MBMenu const items = {
+	//MBMenu const items = {
+	//	{ @"Open",                    @selector(openSelectedItems:)           },
+	//	{ openWithTitle,              @selector(openWithMenuAction:), .delegate = _openWithMenuDelegate, .representedObject = openWithAppURL },
+	//	{ /* -------- */ },
+	//	{ @"Show Original",           @selector(showOriginal:)                },
+	//	{ @"Show Enclosing Folder",   @selector(showEnclosingFolder:)         },
+	//	{ @"Show Package Contents",   @selector(showPackageContents:)         },
+	//	{ @"Show in Finder",          @selector(showSelectedEntriesInFinder:) },
+	//	{ /* -------- */ },
+	//	{ @"New File",                @selector(newDocumentInDirectory:), @"n", NSEventModifierFlagCommand|NSEventModifierFlagControl },
+	//	{ @"New Folder",              @selector(newFolder:),              @"n", NSEventModifierFlagCommand|NSEventModifierFlagShift   },
+	//	{ /* -------- */ },
+	//	{ @"Rename",                  @selector(editSelectedEntries:)                },
+	//	{ @"Duplicate",               @selector(duplicateSelectedEntries:)           },
+	//	{ @"Quick Look",              @selector(toggleQuickLookPreview:)             },
+	//	{ @"Add to Favorites",        @selector(addSelectedEntriesToFavorites:)      },
+	//	{ @"Remove From Favorites",   @selector(removeSelectedEntriesFromFavorites:) },
+	//	{ /* -------- */ },
+	//	{ @"Move to Trash",           @selector(delete:)   },
+	//	{ /* -------- */ .ref = &insertBundleItemsMenuItem },
+	//	{ /* -------- */ },
+	//	{ @"Copy",                    @selector(copy:)                                                                            },
+	//	{ @"Copy as Pathname",        @selector(copyAsPathname:),      @"",  NSEventModifierFlagOption, .tag = kRequiresSelectionTag, .alternate = YES },
+	//	{ @"Paste",                   @selector(paste:),                      },
+	//	{ @"Move Items Here",         @selector(pasteNext:),                  },
+	//	{ @"Create Link to Items",    @selector(createLinkToPasteboardItems:) },
+	//	{ /* -------- */ },
+	//	{ @"Finder Tag", .tag = kRequiresSelectionTag, .ref = &finderTagsMenuItem },
+	//	{ /* -------- */ },
+	//	{ @"Undo",                    @selector(undo:) },
+	//	{ @"Redo",                    @selector(redo:) },
+	//	{ /* -------- */ },
+	//};
+    
+    MBMenu const items = {
 		{ @"Open",                    @selector(openSelectedItems:)           },
-		{ openWithTitle,              @selector(openWithMenuAction:), .delegate = _openWithMenuDelegate, .representedObject = openWithAppURL },
-		{ /* -------- */ },
-		{ @"Show Original",           @selector(showOriginal:)                },
-		{ @"Show Enclosing Folder",   @selector(showEnclosingFolder:)         },
-		{ @"Show Package Contents",   @selector(showPackageContents:)         },
-		{ @"Show in Finder",          @selector(showSelectedEntriesInFinder:) },
 		{ /* -------- */ },
 		{ @"New File",                @selector(newDocumentInDirectory:), @"n", NSEventModifierFlagCommand|NSEventModifierFlagControl },
-		{ @"New Folder",              @selector(newFolder:),              @"n", NSEventModifierFlagCommand|NSEventModifierFlagShift   },
+		{ @"New Folder",              @selector(newFolder:), @"n", NSEventModifierFlagCommand|NSEventModifierFlagShift },
 		{ /* -------- */ },
-		{ @"Rename",                  @selector(editSelectedEntries:)                },
-		{ @"Duplicate",               @selector(duplicateSelectedEntries:)           },
-		{ @"Quick Look",              @selector(toggleQuickLookPreview:)             },
-		{ @"Add to Favorites",        @selector(addSelectedEntriesToFavorites:)      },
-		{ @"Remove From Favorites",   @selector(removeSelectedEntriesFromFavorites:) },
+		{ @"Rename",                  @selector(editSelectedEntries:) },
+		{ @"Duplicate",               @selector(duplicateSelectedEntries:) },
 		{ /* -------- */ },
-		{ @"Move to Trash",           @selector(delete:)   },
-		{ /* -------- */ .ref = &insertBundleItemsMenuItem },
+		{ @"Copy",                    @selector(copy:) },
+		{ @"Copy Absolute Path",      @selector(copyAbsolutePath:) },
+		{ @"Copy Relative Path",      @selector(copyRelativePath:) },
+		{ @"Paste",                   @selector(paste:) },
 		{ /* -------- */ },
-		{ @"Copy",                    @selector(copy:)                                                                            },
-		{ @"Copy as Pathname",        @selector(copyAsPathname:),      @"",  NSEventModifierFlagOption, .tag = kRequiresSelectionTag, .alternate = YES },
-		{ @"Paste",                   @selector(paste:),                      },
-		{ @"Move Items Here",         @selector(pasteNext:),                  },
-		{ @"Create Link to Items",    @selector(createLinkToPasteboardItems:) },
-		{ /* -------- */ },
-		{ @"Finder Tag", .tag = kRequiresSelectionTag, .ref = &finderTagsMenuItem },
+		{ @"Move to Trash",           @selector(delete:) },
 		{ /* -------- */ },
 		{ @"Undo",                    @selector(undo:) },
 		{ @"Redo",                    @selector(redo:) },
 		{ /* -------- */ },
-	};
+    };
+
 
 	MBCreateMenu(items, menu);
 
-	std::map<SEL, std::string> inactiveKeyEquivalents = {
-		{ @selector(openSelectedItems:),        "@" + utf8::to_s(NSDownArrowFunctionKey) },
-		{ @selector(editSelectedEntries:),      "" + utf8::to_s(NSCarriageReturnCharacter) },
-		{ @selector(duplicateSelectedEntries:), "@d" },
-		{ @selector(toggleQuickLookPreview:),   " " },
-		{ @selector(delete:),                   "@" + utf8::to_s(NSDeleteCharacter) },
-		{ @selector(copy:),                     "@c" },
-		{ @selector(copyAsPathname:),           "~@c" },
-		{ @selector(paste:),                    "@v" },
-		{ @selector(pasteNext:),                "~@v" },
-		{ @selector(undo:),                     "@z" },
-		{ @selector(redo:),                     "@Z" },
-	};
+	//std::map<SEL, std::string> inactiveKeyEquivalents = {
+	//	{ @selector(openSelectedItems:),        "@" + utf8::to_s(NSDownArrowFunctionKey) },
+	//	{ @selector(editSelectedEntries:),      "" + utf8::to_s(NSCarriageReturnCharacter) },
+	//	{ @selector(duplicateSelectedEntries:), "@d" },
+	//	{ @selector(toggleQuickLookPreview:),   " " },
+	//	{ @selector(delete:),                   "@" + utf8::to_s(NSDeleteCharacter) },
+	//	{ @selector(copy:),                     "@c" },
+	//	{ @selector(copyAsPathname:),           "~@c" },
+	//	{ @selector(paste:),                    "@v" },
+	//	{ @selector(pasteNext:),                "~@v" },
+	//	{ @selector(undo:),                     "@z" },
+	//	{ @selector(redo:),                     "@Z" },
+	//};
+    
+    std::map<SEL, std::string> inactiveKeyEquivalents = {
+        { @selector(editSelectedEntries:),      "" + utf8::to_s(NSCarriageReturnCharacter) },
+        { @selector(duplicateSelectedEntries:), "@d" },
+        { @selector(delete:),                   "@" + utf8::to_s(NSDeleteCharacter) },
+        { @selector(copy:),                     "@c" },
+        { @selector(paste:),                    "@v" },
+        { @selector(undo:),                     "@z" },
+        { @selector(redo:),                     "@Z" },
+    };
+
 
 	for(NSMenuItem* menuItem in menu.itemArray)
 	{
@@ -787,10 +821,34 @@ static NSMutableIndexSet* MutableLongestCommonSubsequence (NSArray* lhs, NSArray
 		if(NSString* path = item.URL.path)
 			[pathnames addObject:path];
 	}
-
+	
 	[NSPasteboard.generalPasteboard clearContents];
 	[NSPasteboard.generalPasteboard writeObjects:pathnames];
 }
+
+// Public entry for copying absolute paths of selected items
+- (void)copyAbsolutePath:(id)sender
+{
+        [self copyAsPathname:sender];
+}
+
+// Copy paths relative to the root of the file browser
+- (void)copyRelativePath:(id)sender
+{
+    NSMutableArray* relPaths = [NSMutableArray array];
+    for(FileItem* item in self.previewableItems)
+    {
+        if(NSString* path = item.URL.path)
+        {
+            std::string rel = path::relative_to(to_s(path), to_s(self.path));
+            [relPaths addObject:[NSString stringWithUTF8String:rel.c_str()]];
+        }
+    }
+    
+    [NSPasteboard.generalPasteboard clearContents];
+    [NSPasteboard.generalPasteboard writeObjects:relPaths];
+}
+
 
 - (void)paste:(id)sender
 {
@@ -1036,6 +1094,10 @@ static NSMutableIndexSet* MutableLongestCommonSubsequence (NSArray* lhs, NSArray
 	else if(menuItem.action == @selector(copy:))
 		hideAndDisable = previewableItems.count == 0;
 	else if(menuItem.action == @selector(copyAsPathname:))
+		hideAndDisable = previewableItems.count == 0;
+	else if(menuItem.action == @selector(copyAbsolutePath:))
+		hideAndDisable = previewableItems.count == 0;
+	else if(menuItem.action == @selector(copyRelativePath:))
 		hideAndDisable = previewableItems.count == 0;
 	else if(menuItem.action == @selector(paste:))
 		hideAndDisable = self.canPaste == NO;

@@ -1,4 +1,4 @@
-#!/System/Library/Frameworks/Ruby.framework/Versions/Current/usr/bin/ruby
+#!/usr/bin/env ruby
 # == Synopsis
 #
 # Module to assist in building the Contributors page using git commit history.
@@ -66,7 +66,7 @@ class GitHubLookup
     @db['71c216d75354dda636b879dfc95654fb'] = 'charliepark'
     @db['c8591aebaf7659f1ff429898345f446a'] = 'olegam'
     @db['f275727e33d63e05cc0abab1bfc41da7'] = 'sudara'
-    ObjectSpace.define_finalizer(@db, proc {|id| db.close })
+    ObjectSpace.define_finalizer(@db, proc {|id| @db.close })
   end
 
   def self.user_by_email(email)
@@ -96,9 +96,15 @@ class GitHubLookup
     end
 
     user = YAML.load(response.body)
-    return nil if user.nil?
-    # save result to k/v store
-    return @db[emailhash] = user['user']['login']
+    # New: check for nil, missing keys, or unexpected structure
+    login = user && user['user'] && user['user']['login']
+
+    unless login
+      warn "WARN: Could not find login for email #{email.inspect} (API result: #{user.inspect})"
+      return @db[emailhash] = nil
+    end
+
+    return @db[emailhash] = login
   end
 
 end
