@@ -2,10 +2,11 @@ build.ninja
 local.rave
 Frameworks/license/src/revoked_serials.cc
 dist
+
 .DS_Store
+*/.DS_Store
+**/.DS_Store
+
 .vscode
 .idea
 .claude/
-build_arm64/
-build_x86_64/
-build_universal/

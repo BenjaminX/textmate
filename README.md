@@ -145,6 +145,36 @@ Please read the [writing bug reports](https://github.com/textmate/textmate/wiki/
 
 ![textmate](https://raw.github.com/textmate/textmate/gh-pages/images/screenshot.png)
 
+## 本地编译状态
+
+**保留的配置文件：**
+- ✅ `local.rave` - 工作的本地配置
+- ✅ `default.rave` - 默认构建配置
+- ✅ `local-orig.rave` - 原始配置备份
+- ✅ 项目原有的文档 (README.md, CLAUDE.md等)
+
+**编译环境：完全正常**
+- ✅ 依赖项已正确安装
+- ✅ 配置文件已恢复正常
+- ✅ ARM64版本编译成功
+- ✅ TextMate.app可正常启动
+
+**使用方法：**
+```bash
+# 开发构建 (debug)
+./configure && ninja TextMate
+
+# 发布构建 (release)
+bin/rave -crelease -tTextMate && ninja TextMate
+
+# 构建并启动
+ninja TextMate/run
+```
+
+**输出位置：**
+- Debug: `dist/debug/Applications/TextMate/TextMate.app`
+- Release: `dist/release/Applications/TextMate/TextMate.app`
+
 # Legal
 
 The source for TextMate is released under the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
